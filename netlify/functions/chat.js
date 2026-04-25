@@ -1,7 +1,4 @@
-const fetch = require('node-fetch');
-
 exports.handler = async (event) => {
-  // Only allow POST requests
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
@@ -9,6 +6,7 @@ exports.handler = async (event) => {
   const { text } = JSON.parse(event.body);
 
   try {
+    // We are using the built-in global fetch here (No 'require' needed!)
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
