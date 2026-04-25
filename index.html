@@ -170,35 +170,40 @@
 
         // BMO's Personality/Brain
         async function generateBMOAnswer(userInput) {
-    // Visual feedback: Eyes turn white while BMO "thinks"
+    console.log("Sending to BMO brain:", userInput);
     const eyes = document.querySelectorAll('.eye');
+    
+    // Turn eyes white to show BMO is "Thinking"
     eyes.forEach(e => e.style.borderColor = "#ffffff");
 
     try {
-        // This calls your Netlify Function
         const response = await fetch('/.netlify/functions/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ text: userInput }),
         });
 
+        if (!response.ok) {
+            throw new Error("Brain not responding. Status: " + response.status);
+        }
+
         const data = await response.json();
-        
-        // Reset eyes to blue and speak the real AI answer
         eyes.forEach(e => e.style.borderColor = "#00f3ff");
-        
+
         if (data.reply) {
             bmoSpeak(data.reply);
         } else {
-            bmoSpeak("My brain feels a bit empty. Check the API key!");
+            bmoSpeak("My brain is empty! Check the OpenAI API key.");
         }
 
     } catch (error) {
-        console.error("Connection error:", error);
-        bmoSpeak("Oh beans! I can't reach my brain right now.");
-        eyes.forEach(e => e.style.borderColor = "#ff0000"); // Turn eyes red on error
+        console.error("BMO Error:", error);
+        // BMO will now TELL you if there is a connection error
+        bmoSpeak("Oh no! I lost my connection to the cloud.");
+        eyes.forEach(e => e.style.borderColor = "#ff0000");
     }
 }
+
         // Voice and Face Animation
         function speak(text) {
             const synth = window.speechSynthesis;
