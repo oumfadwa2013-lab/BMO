@@ -169,23 +169,36 @@
         };
 
         // BMO's Personality/Brain
-        function generateBMOAnswer(input) {
-            let response = "";
-            const text = input.toLowerCase();
+        async function generateBMOAnswer(userInput) {
+    // Visual feedback: Eyes turn white while BMO "thinks"
+    const eyes = document.querySelectorAll('.eye');
+    eyes.forEach(e => e.style.borderColor = "#ffffff");
 
-            if (text.includes("hello") || text.includes("hi")) {
-                response = "Greetings! My name is BMO. I am so glad you woke me up!";
-            } else if (text.includes("how are you")) {
-                response = "I am feeling wonderful! My circuits are tingly with excitement!";
-            } else if (text.includes("game")) {
-                response = "Who wants to play video games?! I love games!";
-            } else {
-                response = "That sounds interesting! Tell BMO more about that.";
-            }
+    try {
+        // This calls your Netlify Function
+        const response = await fetch('/.netlify/functions/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: userInput }),
+        });
 
-            speak(response);
+        const data = await response.json();
+        
+        // Reset eyes to blue and speak the real AI answer
+        eyes.forEach(e => e.style.borderColor = "#00f3ff");
+        
+        if (data.reply) {
+            bmoSpeak(data.reply);
+        } else {
+            bmoSpeak("My brain feels a bit empty. Check the API key!");
         }
 
+    } catch (error) {
+        console.error("Connection error:", error);
+        bmoSpeak("Oh beans! I can't reach my brain right now.");
+        eyes.forEach(e => e.style.borderColor = "#ff0000"); // Turn eyes red on error
+    }
+}
         // Voice and Face Animation
         function speak(text) {
             const synth = window.speechSynthesis;
